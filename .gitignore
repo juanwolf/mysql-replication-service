@@ -2,3 +2,7 @@
 
 *.iml
 .idea/
+
+# Added this file the time I can't make docker working.
+start-without-docker.sh
+run.sh

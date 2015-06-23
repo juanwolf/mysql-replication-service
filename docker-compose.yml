@@ -8,16 +8,14 @@ river:
 kibana:
   image: kibana
   ports:
-    - '5601:5601'
+    - "5601:5601"
   links:
     - es
 db:
   image: mysql
   ports:
-    - '3306:3306'
+    - "3306:3306"
 es:
   image: elasticsearch
   ports:
-    - '9002:9002'
-
-
+    - "9002:9002"
