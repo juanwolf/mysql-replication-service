@@ -8,10 +8,11 @@ from pymysqlreplication.row_event import (
     WriteRowsEvent
 )
 import sys
-
+from mysql_connector import MySQLConnector
+from transaction_manager import TransactionManager
 
 parser = ConfigParser()
-parser.read('resources/config.ini')
+parser.read('resources/conf/config.ini')
 
 MYSQL_SETTINGS = {
     "host": parser.get('mysql', 'host'),
@@ -20,20 +21,21 @@ MYSQL_SETTINGS = {
     "passwd": parser.get('mysql', 'password')
 }
 
+
+
 def main():
     # server_id is your slave identifier, it should be unique.
     # set blocking to True if you want to block and wait for the next event at
     # the end of the stream
     print(MYSQL_SETTINGS)
-    stream = BinLogStreamReader(connection_settings=MYSQL_SETTINGS,
-                                server_id=3,
-                                only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
-                                blocking=True)
+    transaction_manager = TransactionManager()
+    mysql_connector = MySQLConnector(MYSQL_SETTINGS, [DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent], blocking=True,
+                                     id_label="Id")
     print("Connected to the database at %s:%d with user %s" % (MYSQL_SETTINGS.get("host"),
                                                                MYSQL_SETTINGS.get("port"),
                                                                MYSQL_SETTINGS.get("user")))
     es_stream = Elasticsearch()
-    for binlogevent in stream:
+    for binlogevent in mysql_connector.get_stream():
         for row in binlogevent.rows:
             event = {"schema": binlogevent.schema, "table": binlogevent.table}
             if isinstance(binlogevent, DeleteRowsEvent):
@@ -58,8 +60,6 @@ def main():
                 print("Adding ", doc)
             print(json.dumps(event))
             sys.stdout.flush()
-
-    stream.close()
 
 
 if __name__ == "__main__":
