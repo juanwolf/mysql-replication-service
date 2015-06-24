@@ -3,8 +3,8 @@ import os
 class TransactionManager:
 
     def __init__(self):
-        self._last_success_file = os.open('last_success.timestamp', os.O_CREAT | os.O_RDWR)
-        self._last_request_file = os.open('last_request.timestamp', os.O_CREAT | os.O_RDWR)
+        self._last_success_file = os.open('resources/transaction/last_success.gtid', os.O_CREAT | os.O_RDWR)
+        self._last_request_file = os.open('resources/transaction/last_request.gtid', os.O_CREAT | os.O_RDWR)
         if (os.stat(self._last_success_file).st_size > 0):
             self.last_success_id = self._last_success_file.read()
         if (os.stat(self._last_request_file).st_size > 0):
