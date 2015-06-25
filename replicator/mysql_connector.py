@@ -1,6 +1,5 @@
-import parser
 from pymysqlreplication import BinLogStreamReader
-from pymysqlreplication.row_event import DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent
+
 
 class MySQLConnector:
     """
@@ -8,11 +7,11 @@ class MySQLConnector:
     and allow to send the specific row to the elastic.
     """
 
-    def __init__(self, mysql_settings, events, blocking, id_label="_id", auto_position=None):
+    def __init__(self, mysql_settings, events, blocking, id_label="_id", skip_to_timestamp=None):
         self.stream = BinLogStreamReader(connection_settings=mysql_settings, server_id=3,
                                          only_events=events,
                                          blocking=blocking,
-                                         auto_position=auto_position)
+                                         skip_to_timestamp=skip_to_timestamp)
         self.id_label = id_label
 
     def get_id_label(self):
