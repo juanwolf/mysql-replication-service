@@ -6,11 +6,13 @@ class TransactionManager:
         self.last_success_timestamp = int(self._last_success_file.readline())
         self.last_request_sent_timestamp = int(self._last_request_file.readline())
 
-    def get_last_success_id(self):
-        return self.last_success_id
+        self.number_of_create_request = 0
+        self.number_of_delete_request = 0
+        self.number_of_update_request = 0
 
-    def get_last_request_sent_id(self):
-        return self.last_request_sent_id
+    @property
+    def number_of_transactions(self):
+        return self.number_of_create_request + self.number_of_delete_request + self.number_of_update_request
 
     def get_last_success_timestamp(self):
         return self.last_success_timestamp
@@ -18,6 +20,11 @@ class TransactionManager:
     def get_last_request_sent_timestamp(self):
         return self.last_request_sent_timestamp
 
+    @property
+    def latency(self):
+        return self.last_success_timestamp - self.last_request_sent_timestamp
+
+    @property
     def is_synchronized(self):
         return self.get_last_request_sent_timestamp() == self.get_last_success_timestamp()
 
