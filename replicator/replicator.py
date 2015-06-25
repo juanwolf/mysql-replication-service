@@ -12,7 +12,6 @@ from pymysqlreplication.row_event import (
     WriteRowsEvent
 )
 
-from mysql_connector import MySQLConnector
 from transaction_manager import TransactionManager
 
 class Replicator:
@@ -20,7 +19,6 @@ class Replicator:
         parser = ConfigParser()
         parser.read('resources/conf/config.ini')
         parser.read('/etc/masternaut/mysql-elasticsearch-replicator.ini')
-        # parser.read('resources/conf/config.ini')
 
         self.logger = logging.getLogger('replicator')
         logging.basicConfig(level=logging.DEBUG)
@@ -65,7 +63,7 @@ class Replicator:
                     document_id_to_remove = row["values"]["Id"]
                     self.transaction_manager.last_request_sent_timestamp = binlogevent.timestamp
                     self.transaction_manager.write_last_request_sent(binlogevent)
-                    doc = es_stream.delete(index="fleet", doc_type="account", id=document_id_to_remove)
+                    doc = es_stream.delete(index=binlogevent.schema, doc_type=binlogevent.table, id=document_id_to_remove)
                     self.transaction_manager.write_last_request_success(binlogevent)
                     self.transaction_manager.last_success_timestamp = binlogevent.timestamp
                     self.logger.info("Deleted document for id %d" % document_id_to_remove)
@@ -76,7 +74,7 @@ class Replicator:
                     updated_body = row["after_values"]
                     self.transaction_manager.last_request_sent_timestamp = binlogevent.timestamp
                     self.transaction_manager.write_last_request_sent(binlogevent)
-                    doc = es_stream.index(index="fleet", doc_type="account", id=document_id_to_update, body=updated_body)
+                    doc = es_stream.index(index=binlogevent.schema, doc_type=binlogevent.table, id=document_id_to_update, body=updated_body)
                     self.transaction_manager.write_last_request_success(binlogevent)
                     self.transaction_manager.last_success_timestamp = binlogevent.timestamp
                     self.logger.info("Document for id %d updated to %s" % (document_id_to_update, row["after_values"]))
@@ -86,7 +84,7 @@ class Replicator:
                     document_id_to_add = row["values"]["Id"]
                     self.transaction_manager.last_request_sent_timestamp = binlogevent.timestamp
                     self.transaction_manager.write_last_request_sent(binlogevent)
-                    doc = es_stream.index(index="fleet", doc_type="account", body=row["values"], id=document_id_to_add)
+                    doc = es_stream.index(index=binlogevent.schema, doc_type=binlogevent.table, body=row["values"], id=document_id_to_add)
                     self.transaction_manager.write_last_request_success(binlogevent)
                     self.transaction_manager.last_success_timestamp = binlogevent.timestamp
                     self.logger.info("Adding document %s to the elastic search" % row["values"])
