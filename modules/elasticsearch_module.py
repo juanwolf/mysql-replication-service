@@ -1,11 +1,20 @@
+from configparser import ConfigParser
 from elasticsearch import Elasticsearch
-from AbstractModule import AbstractModule
+from abstract_module import AbstractModule
 
 
-class ElasticModule(AbstractModule):
+class ElasticsearchModule(AbstractModule):
     """
     Override the elastic API. (Not really usefull for the moment)
     """
+
+    def load_settings(self):
+        parser = ConfigParser()
+        parser.read('resources/conf/elasticsearch.ini')
+        self.SETTINGS = {
+            "host" : parser.get('elasticsearch', 'host'),
+            "port" : parser.get('elasticsearch', 'port')
+        }
 
     def __init__(self):
         self.es_stream = Elasticsearch()
