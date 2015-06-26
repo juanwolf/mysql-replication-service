@@ -1,6 +1,6 @@
 class AbstractModule:
 
-    def load_settings(self):
+    def load_settings(self, items):
         raise NotImplementedError
 
     def insert(self):

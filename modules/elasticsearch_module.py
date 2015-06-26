@@ -8,15 +8,14 @@ class ElasticsearchModule(AbstractModule):
     Override the elastic API. (Not really usefull for the moment)
     """
 
-    def load_settings(self):
-        parser = ConfigParser()
-        parser.read('resources/conf/elasticsearch.ini')
+    def load_settings(self, config_parser):
         self.SETTINGS = {
-            "host" : parser.get('elasticsearch', 'host'),
-            "port" : parser.get('elasticsearch', 'port')
+            "host" : config_parser.get('elasticsearch', 'host'),
+            "port" : config_parser.get('elasticsearch', 'port')
         }
 
-    def __init__(self):
+    def __init__(self, config_parser):
+        self.load_settings(config_parser)
         self.es_stream = Elasticsearch()
 
     def insert(self, index, doc_type, id, doc):
