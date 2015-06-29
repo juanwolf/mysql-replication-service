@@ -39,7 +39,7 @@ class ModulesManager:
     def generate_modules_instances(self):
         for module in self.modules_available:
             if module in self.config_parser.sections():
-                instance = modules_available.modules_available[module](self.config_parser)
+                instance = modules_available[module](self.config_parser)
                 self.instances.append(instance)
 
     def insert_data_all_modules(self, index, doc_type, id, doc):
