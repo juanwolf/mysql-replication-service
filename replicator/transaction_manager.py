@@ -42,7 +42,6 @@ class TransactionManager:
         self._last_success_file.write('%d' % log_pos)
         self.last_success_timestamp = log_event.timestamp
 
-
     def __del__(self):
         self._last_request_file.close()
         self._last_success_file.close()

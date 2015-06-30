@@ -1,8 +1,4 @@
-from concurrent.futures import thread
-import json
-from threading import Thread
 import cherrypy
-from replicator.replicator import Replicator
 
 
 class ReplicatorServer(object):

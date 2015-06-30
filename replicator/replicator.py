@@ -8,9 +8,9 @@ from pymysqlreplication.row_event import (
     UpdateRowsEvent,
     WriteRowsEvent
 )
-from modules_manager import ModulesManager
+from replicator.modules_manager import ModulesManager
 
-from transaction_manager import TransactionManager
+from replicator.transaction_manager import TransactionManager
 
 class Replicator:
     def __init__(self, parser):
