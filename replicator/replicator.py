@@ -69,6 +69,7 @@ class Replicator:
                     document_id_to_remove = row["values"][self.index_label]
                     self.transaction_manager.write_last_request_log_pos(stream, binlogevent)
                     self.modules_manager.remove_data_all_modules(index=binlogevent.schema, doc_type=binlogevent.table, id=document_id_to_remove)
+                    self.transaction_manager.number_of_delete_request += 1
                     self.transaction_manager.write_last_success_log_pos(stream, binlogevent)
                     self.logger.info("Deleted document for id %d" % document_id_to_remove)
 
@@ -79,8 +80,11 @@ class Replicator:
                     document_id_to_update = row["before_values"][self.index_label]
                     updated_body = row["after_values"]
                     self.transaction_manager.write_last_request_log_pos(stream, binlogevent)
-                    self.modules_manager.update_data_all_modules(index=binlogevent.schema, doc_type=binlogevent.table,
-                                                                 id=document_id_to_update, doc=updated_body)
+                    self.modules_manager.update_data_all_modules(index=binlogevent.schema,
+                                                                 doc_type=binlogevent.table,
+                                                                 id=document_id_to_update,
+                                                                 doc=updated_body)
+                    self.transaction_manager.number_of_update_request += 1
                     self.transaction_manager.write_last_success_log_pos(stream, binlogevent)
                     self.logger.info("Document for id %d updated to %s" % (document_id_to_update, row["after_values"]))
 
@@ -93,6 +97,7 @@ class Replicator:
                     self.modules_manager.insert_data_all_modules(index=binlogevent.schema, doc_type=binlogevent.table,
                                                                  doc=row["values"], id=document_id_to_add)
                     self.transaction_manager.write_last_success_log_pos(stream, binlogevent)
+                    self.transaction_manager.number_of_create_request += 1
                     self.logger.info("Adding document %s to the elastic search" % row["values"])
                     #self.logger.info(json.dumps(event))
 
