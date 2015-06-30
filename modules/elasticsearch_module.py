@@ -1,6 +1,5 @@
-from configparser import ConfigParser
 from elasticsearch import Elasticsearch
-from abstract_module import AbstractModule
+from replicator.abstract_module import AbstractModule
 
 
 class ElasticsearchModule(AbstractModule):
