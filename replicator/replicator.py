@@ -13,11 +13,11 @@ from modules_manager import ModulesManager
 from transaction_manager import TransactionManager
 
 class Replicator:
-    def __init__(self):
-        parser = ConfigParser()
-        parser.read('resources/conf/config.ini')
-        parser.read('/etc/masternaut/mysql-elasticsearch-replicator/config.ini')
-
+    def __init__(self, parser):
+        """
+        :param config_parser:
+         the config_parser  MUST be initialized and had read a least one file.
+        """
         self.logger = logging.getLogger('replicator')
         logging.basicConfig(level=logging.DEBUG)
         self.MYSQL_SETTINGS = {
@@ -26,6 +26,7 @@ class Replicator:
             "user": parser.get('mysql', 'user'),
             "passwd": parser.get('mysql', 'password')
         }
+        self.tables = [e.strip() for e in parser.get('mysql', 'tables').split(',')]
         self.server_id = parser.getint('mysql', 'server_id')
         self.transaction_manager = TransactionManager()
         self.modules_manager = ModulesManager(config_parser=parser)
@@ -40,7 +41,7 @@ class Replicator:
             stream = BinLogStreamReader(connection_settings=self.MYSQL_SETTINGS,
                              only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
                              server_id=self.server_id,
-                             only_tables=["account"],
+                             only_tables=self.tables,
                              blocking=True,
                              resume_stream=True,
                              log_pos=self.transaction_manager.last_request_sent)
@@ -95,6 +96,9 @@ class Replicator:
             sys.stdout.flush()
 
 if __name__ == "__main__":
-    replicator = Replicator()
+    parser = ConfigParser()
+    parser.read('resources/conf/config.ini')
+    parser.read('/etc/masternaut/mysql-elasticsearch-replicator/config.ini')
+    replicator = Replicator(parser)
     replicator.start()
 
