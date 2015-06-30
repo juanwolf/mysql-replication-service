@@ -7,7 +7,22 @@ class ModuleDetectorTest(unittest.TestCase):
 
     def setUp(self):
         config_parser = ConfigParser()
-        config_parser.read('test/resources/config.ini')
+        config_parser['mysql'] = {
+            'host' : 'test_host',
+            'port' : '1111',
+            'user' : 'user',
+            'password' : 'password',
+            'server_id' : '1',
+            'tables' : 'account',
+            'index_label' : 'id'
+        }
+        config_parser['elasticsearch'] = {
+            'host' : 'ddd',
+            'port' : '1111'
+        }
+        config_parser['core'] = {
+            'modules_path' : '/home/juanwolf/devel/mysql-elasticsearch-replicator/modules/'
+        }
         self.modules_manager = ModulesManager(config_parser)
 
 
@@ -22,4 +37,5 @@ class ModuleDetectorTest(unittest.TestCase):
         # when
         self.modules_manager.generate_modules_instances()
         # then
+        self.assertEqual(len(self.modules_manager.instances), 1)
         self.assertIsInstance(self.modules_manager.instances[0], ElasticsearchModule)
