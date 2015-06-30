@@ -37,7 +37,7 @@ class Replicator:
         # server_id is your slave identifier, it should be unique.
         # set blocking to True if you want to block and wait for the next event at
         # the end of the stream
-
+        self.modules_manager.generate_modules_instances()
         if hasattr(self.transaction_manager, 'last_request_sent'):
             stream = BinLogStreamReader(connection_settings=self.MYSQL_SETTINGS,
                              only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
