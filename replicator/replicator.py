@@ -26,7 +26,8 @@ class Replicator:
             "user": parser.get('mysql', 'user'),
             "passwd": parser.get('mysql', 'password')
         }
-        self.tables = [e.strip() for e in parser.get('mysql', 'tables').split(',')]
+        self.databases = [db.strip() for db in parser.get('mysql', 'databases').split(',')]
+        self.tables = [table.strip() for table in parser.get('mysql', 'tables').split(',')]
         self.server_id = parser.getint('mysql', 'server_id')
         self.transaction_manager = TransactionManager()
         self.modules_manager = ModulesManager(config_parser=parser)
@@ -41,6 +42,7 @@ class Replicator:
             stream = BinLogStreamReader(connection_settings=self.MYSQL_SETTINGS,
                              only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
                              server_id=self.server_id,
+                             only_schemas=self.databases,
                              only_tables=self.tables,
                              blocking=True,
                              resume_stream=True,
@@ -48,6 +50,7 @@ class Replicator:
 
         else:
             stream = BinLogStreamReader(connection_settings=self.MYSQL_SETTINGS, server_id=self.server_id,
+                                         only_schemas=self.databases,
                                          only_tables=["account"],
                                          only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
                                          blocking=True)
