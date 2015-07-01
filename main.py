@@ -4,6 +4,7 @@ from configparser import ConfigParser
 import logging
 import cherrypy
 import click
+import sys
 from replicator.replicator import Replicator
 from server.server import ReplicatorServer
 
@@ -19,6 +20,20 @@ log_levels = {
     'DEBUG': 10,
     'DEFAULT': 20
 }
+
+def check_server_configuration(config_parser, logger):
+    if config_parser.get('server', 'socket_host', fallback=None) is None:
+        logger.error('The server section should contain a socket_host value')
+        sys.exit(2)
+    if config_parser.getint('server', 'socket_port', fallback=None) is None:
+        logger.error('The server section should contain a socket_port value')
+        sys.exit(2)
+    if config_parser.get('server', 'log.access_file', fallback=None) is None:
+        logger.error('The server section should contain a log.access_file value')
+        sys.exit(2)
+    if config_parser.get('server', 'log.error_file', fallback=None) is None:
+        logger.error('The server section should contain a log.error_file value')
+        sys.exit(2)
 
 @click.command()
 @click.option('--server', is_flag=True, help="Run a little cherrypy server to check stats of the replication.")
@@ -41,6 +56,7 @@ def main(server):
     logger = logging.getLogger('replicator')
     if server:
         if config_parser.has_section('server'):
+            check_server_configuration(config_parser, logger)
             server_config = {
                 'server.socket_host' : config_parser.get('server', 'socket_host'),
                 'server.socket_port' : config_parser.getint('server', 'socket_port'),
