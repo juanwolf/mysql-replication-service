@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 import unittest
 from modules.elasticsearch_module import ElasticsearchModule
-from modules_manager import ModulesManager
+from replicator.modules_manager import ModulesManager
 
 class ModuleDetectorTest(unittest.TestCase):
 
@@ -39,3 +39,6 @@ class ModuleDetectorTest(unittest.TestCase):
         # then
         self.assertEqual(len(self.modules_manager.instances), 1)
         self.assertIsInstance(self.modules_manager.instances[0], ElasticsearchModule)
+
+if __name__ == '__main__':
+    unittest.main()

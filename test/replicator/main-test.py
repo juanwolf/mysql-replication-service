@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from unittest import TestCase
+import unittest
 
 from replicator.replicator import Replicator
 
@@ -69,7 +70,6 @@ class ReplicatorTest(TestCase):
             'modules_path' : 'path/to/modules'
         }
         # When
-        # When
         replicator = Replicator(config_parser)
 
         # Then
@@ -92,8 +92,11 @@ class ReplicatorTest(TestCase):
             'modules_path' : 'path/to/modules'
         }
         # When
-        # When
         replicator = Replicator(config_parser)
 
         # Then
         self.assertEqual(replicator.databases, ["db", "db2"])
+
+if __name__ == '__main__':
+    unittest.main()
+
