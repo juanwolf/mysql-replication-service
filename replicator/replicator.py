@@ -15,13 +15,52 @@ from replicator.transaction_manager import TransactionManager
 
 
 class Replicator:
+
+    def __check_configuration(self, parser):
+        """
+        Check that the configuration is usable. For example, it will raise an error.
+        """
+        if not parser.has_section('core'):
+            self.logger.error('The config file should contain a core section with at least the module_path specified')
+            sys.exit(1)
+        else:
+            if parser.get('core', 'modules_path', fallback=None) is None:
+                self.logger.error('The configuration file should contain at least the modules_path value in core section.')
+                sys.exit(1)
+        if not parser.has_section('mysql'):
+            self.logger.error('The config file should contain a mysql section.')
+            sys.exit(1)
+        else:
+            if parser.get('mysql', 'host', fallback=None) is None:
+                self.logger.error('The config file should contain the host value in mysql section.')
+                sys.exit(1)
+            if parser.get('mysql', 'port', fallback=None) is None:
+                self.logger.error('The config file should contain the port value in mysql section.')
+                sys.exit(1)
+            if parser.get('mysql', 'user', fallback=None) is None:
+                self.logger.error('The config file should contain the user in mysql section.')
+                sys.exit(1)
+            if parser.get('mysql', 'password', fallback=None) is None:
+                self.logger.error('The config file should contain the password of the user in mysql section.')
+                sys.exit(1)
+            if parser.get('mysql', 'server_id', fallback=None) is None:
+                self.logger.error('The config file should contain the server_id in mysql section.')
+                sys.exit(1)
+            if parser.get('mysql', 'databases', fallback=None) is None:
+                self.logger.error('The config file should contain databases in mysql section.')
+                sys.exit(1)
+
+
+
+
+
     def __init__(self, parser):
         """
         :param parser:
          the config_parser  MUST be initialized and had read a least one file.
         """
         self.logger = logging.getLogger('replicator')
-
+        self.__check_configuration(parser)
         self.MYSQL_SETTINGS = {
             "host": parser.get('mysql', 'host'),
             "port": parser.getint('mysql', 'port'),
@@ -53,7 +92,7 @@ class Replicator:
         else:
             stream = BinLogStreamReader(connection_settings=self.MYSQL_SETTINGS, server_id=self.server_id,
                                         only_schemas=self.databases,
-                                        only_tables=["account"],
+                                        only_tables=self.tables,
                                         only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
                                         blocking=True)
 
