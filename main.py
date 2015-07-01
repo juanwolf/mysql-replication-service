@@ -9,22 +9,38 @@ from server.server import ReplicatorServer
 
 __author__ = 'juanwolf'
 
+log_levels = {
+    'CRITICAL': 50,
+    'FATAL': 50,
+    'ERROR': 40,
+    'WARNING': 30,
+    'WARN': 30,
+    'INFO': 20,
+    'DEBUG': 10,
+    'DEFAULT': 20
+}
+
 @click.command()
-@click.option('--server',is_flag=True, help="Run a little cherrypy server to check stats of the replication.")
+@click.option('--server', is_flag=True, help="Run a little cherrypy server to check stats of the replication.")
 def main(server):
     """
     Run the mysql replicator.
     """
+
     config_parser = ConfigParser()
     config_parser.read('resources/conf/config.ini')
+
+    log_level = log_levels.get(config_parser.get('core', 'log.level'))
+    log_filename = config_parser.get('core', 'log.path')
+    logging.basicConfig(level=log_level,
+                        format='%(levelname)s:%(asctime)s:%(message)s',
+                        filename=log_filename)
     replicator = Replicator(config_parser)
-
-    executor = ThreadPoolExecutor(max_workers = 2)
+    executor = ThreadPoolExecutor(max_workers=2)
     executor.submit(replicator.start)
-
     logger = logging.getLogger('replicator')
     if server:
-        if config_parser.has_section('server') :
+        if config_parser.has_section('server'):
             server_config = {
                 'server.socket_host' : config_parser.get('server', 'socket_host'),
                 'server.socket_port' : config_parser.getint('server', 'socket_port'),

@@ -12,14 +12,16 @@ from replicator.modules_manager import ModulesManager
 
 from replicator.transaction_manager import TransactionManager
 
+
+
 class Replicator:
     def __init__(self, parser):
         """
-        :param config_parser:
+        :param parser:
          the config_parser  MUST be initialized and had read a least one file.
         """
         self.logger = logging.getLogger('replicator')
-        logging.basicConfig(level=logging.DEBUG)
+
         self.MYSQL_SETTINGS = {
             "host": parser.get('mysql', 'host'),
             "port": parser.getint('mysql', 'port'),
@@ -40,24 +42,24 @@ class Replicator:
         self.modules_manager.generate_modules_instances()
         if hasattr(self.transaction_manager, 'last_request_sent'):
             stream = BinLogStreamReader(connection_settings=self.MYSQL_SETTINGS,
-                             only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
-                             server_id=self.server_id,
-                             only_schemas=self.databases,
-                             only_tables=self.tables,
-                             blocking=True,
-                             resume_stream=True,
-                             log_pos=self.transaction_manager.last_request_sent)
+                                        only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
+                                        server_id=self.server_id,
+                                        only_schemas=self.databases,
+                                        only_tables=self.tables,
+                                        blocking=True,
+                                        resume_stream=True,
+                                        log_pos=self.transaction_manager.last_request_sent)
 
         else:
             stream = BinLogStreamReader(connection_settings=self.MYSQL_SETTINGS, server_id=self.server_id,
-                                         only_schemas=self.databases,
-                                         only_tables=["account"],
-                                         only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
-                                         blocking=True)
+                                        only_schemas=self.databases,
+                                        only_tables=["account"],
+                                        only_events=[DeleteRowsEvent, UpdateRowsEvent, WriteRowsEvent],
+                                        blocking=True)
 
         self.logger.info("Connected to the database at %s:%d with user %s" % (self.MYSQL_SETTINGS.get("host"),
-                                                                   self.MYSQL_SETTINGS.get("port"),
-                                                                   self.MYSQL_SETTINGS.get("user")))
+                                                                              self.MYSQL_SETTINGS.get("port"),
+                                                                              self.MYSQL_SETTINGS.get("user")))
 
         for binlogevent in stream:
             for row in binlogevent.rows:
