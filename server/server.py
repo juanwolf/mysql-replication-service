@@ -10,7 +10,7 @@ class ReplicatorServer(object):
     @cherrypy.tools.json_out()
     def index(self):
         main_json = {
-            'transaction_numberNumber': self.replicator.transaction_manager.number_of_transactions,
+            'transaction_number': self.replicator.transaction_manager.number_of_transactions,
             'creation_number':  self.replicator.transaction_manager.number_of_create_request,
             'deletion_number': self.replicator.transaction_manager.number_of_delete_request,
             'update_number': self.replicator.transaction_manager.number_of_update_request,
