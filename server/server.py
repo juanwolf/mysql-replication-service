@@ -9,13 +9,19 @@ class ReplicatorServer(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def index(self):
-        return {
-            'transaction_numberNumber' : self.replicator.transaction_manager.number_of_transactions,
-            'creation_number' :  self.replicator.transaction_manager.number_of_create_request,
-            'deletion_number' : self.replicator.transaction_manager.number_of_delete_request,
-            'update_number' : self.replicator.transaction_manager.number_of_update_request,
-            'latency' : self.replicator.transaction_manager.latency,
+        main_json = {
+            'transaction_numberNumber': self.replicator.transaction_manager.number_of_transactions,
+            'creation_number':  self.replicator.transaction_manager.number_of_create_request,
+            'deletion_number': self.replicator.transaction_manager.number_of_delete_request,
+            'update_number': self.replicator.transaction_manager.number_of_update_request,
+            'latency': self.replicator.transaction_manager.latency
         }
+        modules_json = {}
+        for module in self.replicator.modules_manager.modules_available:
+            modules_json = { module: self.replicator.modules_manager.get_module_information(module)
+                             for module in self.replicator.modules_manager.modules_available }
+        main_json['modules'] = modules_json
+        return main_json
 
 
 

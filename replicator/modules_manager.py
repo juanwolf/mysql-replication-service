@@ -54,6 +54,11 @@ class ModulesManager:
         for module in self.instances:
             module.remove(index, doc_type, id)
 
+    def get_module_information(self, module_name):
+        for instance in self.instances:
+            if isinstance(instance, modules_available[module_name]):
+                return instance.server_information
+        return None
 
 if __name__ == "__main__":
     config_parser = ConfigParser()

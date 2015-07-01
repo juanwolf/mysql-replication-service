@@ -46,9 +46,8 @@ class Replicator:
             if parser.get('mysql', 'server_id', fallback=None) is None:
                 self.logger.error('The config file should contain the server_id in mysql section.')
                 sys.exit(1)
-            # if parser.get('mysql', 'databases', fallback=None) is None:
-            #     self.logger.error('The config file should contain databases in mysql section.')
-            #     sys.exit(1)
+            # if parser.get('mysql', 'databases', fallback=None) is not None:
+
 
 
 
