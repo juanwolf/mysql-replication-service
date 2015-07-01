@@ -18,7 +18,7 @@ class Replicator:
 
     def __check_configuration(self, parser):
         """
-        Check that the configuration is usable. For example, it will raise an error.
+        Check that the configuration is usable, stop the program.
         """
         if not parser.has_section('core'):
             self.logger.error('The config file should contain a core section with at least the module_path specified')
@@ -59,6 +59,9 @@ class Replicator:
                 for table in tables:
                     if not parser.has_section(table):
                         self.logger.error('The config file should contain a section about the table : %s' % table)
+                        exit(1)
+                    if parser.get(table, 'index_label', fallback=None) is None :
+                        self.logger.error('The config file should contain a table section with a index_label value.')
                         exit(1)
 
 
@@ -132,7 +135,7 @@ class Replicator:
             for row in binlogevent.rows:
                 event = {"schema": binlogevent.schema, "table": binlogevent.table}
                 if isinstance(binlogevent, DeleteRowsEvent):
-                    self.logger.info("Deletion event detected.")
+                    self.logger.info("Delete event detected.")
                     event["action"] = "delete"
                     event = dict(list(event.items()) + list(row["values"].items()))
                     document_id_to_remove = row["values"][self.indexes_label[binlogevent.table]]
@@ -140,7 +143,8 @@ class Replicator:
                     self.modules_manager.remove_data_all_modules(index=binlogevent.schema, doc_type=binlogevent.table, id=document_id_to_remove)
                     self.transaction_manager.number_of_delete_request += 1
                     self.transaction_manager.write_last_success_log_pos(stream, binlogevent)
-                    self.logger.info("Deleted document for id {0}".format(document_id_to_remove))
+                    self.logger.info("Deleted document for id {0} in database {1}".format(document_id_to_remove,
+                                                                                          binlogevent.table))
 
                 elif isinstance(binlogevent, UpdateRowsEvent):
                     self.logger.info("Updated event detected.")
@@ -155,7 +159,9 @@ class Replicator:
                                                                  doc=updated_body)
                     self.transaction_manager.number_of_update_request += 1
                     self.transaction_manager.write_last_success_log_pos(stream, binlogevent)
-                    self.logger.info("Document for id {0} updated to {1}".format(document_id_to_update, row["after_values"]))
+                    self.logger.info("Document for id {0} in database {2} updated to {1}".format(document_id_to_update,
+                                                                                                 row["after_values"],
+                                                                                                 binlogevent.table))
 
                 elif isinstance(binlogevent, WriteRowsEvent):
                     self.logger.info("Insert event detected.")
@@ -167,7 +173,8 @@ class Replicator:
                                                                  doc=row["values"], id=document_id_to_add)
                     self.transaction_manager.write_last_success_log_pos(stream, binlogevent)
                     self.transaction_manager.number_of_create_request += 1
-                    self.logger.info("Adding document {0} to the elastic search".format(row["values"]))
+                    self.logger.info("Adding in table {1} document {0} to the elastic search".format(row["values"],
+                                                                                                     binlogevent.table))
                     #self.logger.info(json.dumps(event))
 
             sys.stdout.flush()
