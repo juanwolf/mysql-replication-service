@@ -46,9 +46,9 @@ class Replicator:
             if parser.get('mysql', 'server_id', fallback=None) is None:
                 self.logger.error('The config file should contain the server_id in mysql section.')
                 sys.exit(1)
-            if parser.get('mysql', 'databases', fallback=None) is None:
-                self.logger.error('The config file should contain databases in mysql section.')
-                sys.exit(1)
+            # if parser.get('mysql', 'databases', fallback=None) is None:
+            #     self.logger.error('The config file should contain databases in mysql section.')
+            #     sys.exit(1)
 
 
 
@@ -60,6 +60,10 @@ class Replicator:
          the config_parser  MUST be initialized and had read a least one file.
         """
         self.logger = logging.getLogger('replicator')
+        # Feel free to comment this section if you don't want a log stream in the console.
+        if parser.get('core', 'log.level') == 'DEBUG':
+            self.logger.addHandler(logging.StreamHandler())
+
         self.__check_configuration(parser)
         self.MYSQL_SETTINGS = {
             "host": parser.get('mysql', 'host'),
@@ -67,8 +71,18 @@ class Replicator:
             "user": parser.get('mysql', 'user'),
             "passwd": parser.get('mysql', 'password')
         }
-        self.databases = [db.strip() for db in parser.get('mysql', 'databases').split(',')]
-        self.tables = [table.strip() for table in parser.get('mysql', 'tables').split(',')]
+        if parser.get('mysql', 'databases', fallback=None) is not None:
+            self.databases = [db.strip() for db in parser.get('mysql', 'databases').split(',')]
+
+        else:
+            self.databases = None
+
+        if parser.get('mysql', 'tables', fallback=None) is not None:
+            self.tables = [table.strip() for table in parser.get('mysql', 'tables').split(',')]
+
+        else:
+            self.tables = None
+
         self.server_id = parser.getint('mysql', 'server_id')
         self.transaction_manager = TransactionManager()
         self.modules_manager = ModulesManager(config_parser=parser)

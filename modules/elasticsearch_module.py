@@ -9,8 +9,8 @@ class ElasticsearchModule(AbstractModule):
 
     def load_settings(self, config_parser):
         self.SETTINGS = {
-            "host" : config_parser.get('elasticsearch', 'host'),
-            "port" : config_parser.get('elasticsearch', 'port')
+            "host": config_parser.get('elasticsearch', 'host'),
+            "port": config_parser.get('elasticsearch', 'port')
         }
 
     def __init__(self, config_parser):

@@ -41,7 +41,6 @@ def main(server):
     """
     Run the mysql replicator.
     """
-
     config_parser = ConfigParser()
     config_parser.read('resources/conf/config.ini')
 
@@ -54,6 +53,10 @@ def main(server):
     executor = ThreadPoolExecutor(max_workers=2)
     executor.submit(replicator.start)
     logger = logging.getLogger('replicator')
+    if log_level == 'DEBUG':
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
     if server:
         if config_parser.has_section('server'):
             check_server_configuration(config_parser, logger)
