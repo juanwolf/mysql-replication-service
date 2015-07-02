@@ -104,6 +104,13 @@ class Replicator:
             table: parser.get(table, 'index_label')
             for table in self.tables
         }
+        self.tables_fields = {}
+        if self.tables is not None:
+            for table in self.tables:
+                if parser.get(table, 'fields', fallback=None) is not None:
+                    self.tables_fields[table] = [field.strip() for field in parser.get(table, 'fields').split(',')]
+                else:
+                    self.tables_fields[table] = None
 
     def start(self):
         # server_id is your slave identifier, it should be unique.
@@ -152,6 +159,9 @@ class Replicator:
                     event = dict(list(event.items()) + list(row["after_values"].items()))
                     document_id_to_update = row["before_values"][self.indexes_label[binlogevent.table]]
                     updated_body = row["after_values"]
+                    if self.tables_fields[binlogevent.table] is not None:
+                        new_body = { field: updated_body[field] for field in self.tables_fields[binlogevent.table] }
+                        updated_body = new_body
                     self.transaction_manager.write_last_request_log_pos(stream, binlogevent)
                     self.modules_manager.update_data_all_modules(index=binlogevent.schema,
                                                                  doc_type=binlogevent.table,
@@ -168,9 +178,13 @@ class Replicator:
                     event["action"] = "insert"
                     event = dict(list(event.items()) + list(row["values"].items()))
                     document_id_to_add = row["values"][self.indexes_label[binlogevent.table]]
+                    document_to_add = row["values"]
+                    if self.tables_fields[binlogevent.table] is not None:
+                        new_body = { field: document_to_add[field] for field in self.tables_fields[binlogevent.table] }
+                        document_to_add = new_body
                     self.transaction_manager.write_last_request_log_pos(stream, binlogevent)
                     self.modules_manager.insert_data_all_modules(index=binlogevent.schema, doc_type=binlogevent.table,
-                                                                 doc=row["values"], id=document_id_to_add)
+                                                                 doc=document_to_add, id=document_id_to_add)
                     self.transaction_manager.write_last_success_log_pos(stream, binlogevent)
                     self.transaction_manager.number_of_create_request += 1
                     self.logger.info("Adding in table {1} document {0} to the elastic search".format(row["values"],
