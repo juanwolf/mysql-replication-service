@@ -135,7 +135,7 @@ class Replicator:
             for row in binlogevent.rows:
                 event = {"schema": binlogevent.schema, "table": binlogevent.table}
                 if isinstance(binlogevent, DeleteRowsEvent):
-                    self.logger.info("Delete event detected.")
+                    self.logger.debug("Delete event detected.")
                     event["action"] = "delete"
                     event = dict(list(event.items()) + list(row["values"].items()))
                     document_id_to_remove = row["values"][self.indexes_label[binlogevent.table]]
@@ -147,7 +147,7 @@ class Replicator:
                                                                                           binlogevent.table))
 
                 elif isinstance(binlogevent, UpdateRowsEvent):
-                    self.logger.info("Updated event detected.")
+                    self.logger.debug("Update event detected.")
                     event["action"] = "update"
                     event = dict(list(event.items()) + list(row["after_values"].items()))
                     document_id_to_update = row["before_values"][self.indexes_label[binlogevent.table]]
@@ -164,7 +164,7 @@ class Replicator:
                                                                                                  binlogevent.table))
 
                 elif isinstance(binlogevent, WriteRowsEvent):
-                    self.logger.info("Insert event detected.")
+                    self.logger.debug("Insert event detected.")
                     event["action"] = "insert"
                     event = dict(list(event.items()) + list(row["values"].items()))
                     document_id_to_add = row["values"][self.indexes_label[binlogevent.table]]
