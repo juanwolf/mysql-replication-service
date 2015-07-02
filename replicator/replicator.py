@@ -9,14 +9,13 @@ from pymysqlreplication.row_event import (
     WriteRowsEvent
 )
 from replicator.modules_manager import ModulesManager
-
 from replicator.transaction_manager import TransactionManager
 
 
 
 class Replicator:
 
-    def __check_configuration(self, parser):
+    def __check_configuration__(self, parser):
         """
         Check that the configuration is usable, stop the program.
         """
@@ -63,14 +62,12 @@ class Replicator:
                     if parser.get(table, 'index_label', fallback=None) is None :
                         self.logger.error('The config file should contain a table section with a index_label value.')
                         exit(1)
-
-
-
-
+            else:
+                self.logger.error('The config file should contain a tables value with all the tables to replicate.')
+                exit(1)
 
     def __init__(self, parser):
         """
-        :param parser:
          the config_parser  MUST be initialized and had read a least one file.
         """
         self.logger = logging.getLogger('replicator')
@@ -78,7 +75,7 @@ class Replicator:
         if parser.get('core', 'log.level') == 'DEBUG':
             self.logger.addHandler(logging.StreamHandler())
 
-        self.__check_configuration(parser)
+        self.__check_configuration__(parser)
         self.MYSQL_SETTINGS = {
             "host": parser.get('mysql', 'host'),
             "port": parser.getint('mysql', 'port'),
@@ -93,9 +90,6 @@ class Replicator:
 
         if parser.get('mysql', 'tables', fallback=None) is not None:
             self.tables = [table.strip() for table in parser.get('mysql', 'tables').split(',')]
-
-        else:
-            self.tables = None
 
         self.server_id = parser.getint('mysql', 'server_id')
         self.transaction_manager = TransactionManager()
