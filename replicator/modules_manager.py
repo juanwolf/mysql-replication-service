@@ -52,7 +52,7 @@ class ModulesManager:
 
     def remove_data_all_modules(self, index, doc_type, id):
         for module in self.instances:
-            module.remove(index, doc_type, id)
+            module.delete(index, doc_type, id)
 
     def get_module_information(self, module_name):
         for instance in self.instances:

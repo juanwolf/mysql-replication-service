@@ -138,7 +138,6 @@ class Replicator:
                 if isinstance(binlogevent, DeleteRowsEvent):
                     self.logger.debug("Delete event detected.")
                     event["action"] = "delete"
-                    event = dict(list(event.items()) + list(row["values"].items()))
                     document_id_to_remove = row["values"][self.indexes_label[binlogevent.table]]
                     self.transaction_manager.write_last_request_log_pos(stream, binlogevent)
                     self.modules_manager.remove_data_all_modules(index=binlogevent.schema, doc_type=binlogevent.table, id=document_id_to_remove)
